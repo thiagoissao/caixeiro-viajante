@@ -1,10 +1,19 @@
 #include <iostream>
 #include <fstream>
 #include <string>
+#include <random>
 #include <bits/stdc++.h>
 
 using namespace std;
 std::stringstream ss;
+
+// Constantes utilizadas no algoritmo
+const vector<int> RANGE_RANDOM_NUMBER = {0, 9};
+const int CROMOSSOMO_SIZE = 9;
+const int INITIAL_POPULATION_SIZE = 20;
+
+// Tipos e Classes utilizados
+typedef vector<int> Cromossomo;
 
 class Node
 {
@@ -44,6 +53,30 @@ public:
     return this->y;
   }
 };
+
+// Todos os auxiliares para log
+void print_node_set(vector<Node> node_set)
+{
+  for (int i = 0; i < node_set.size(); i++)
+  {
+    cout << "v: " << node_set[i].getV() << " ";
+    cout << "x: " << node_set[i].getX() << " ";
+    cout << "y: " << node_set[i].getY() << " ";
+    cout << endl;
+  }
+}
+
+void print_population(vector<Cromossomo> population)
+{
+  for (int i = 0; i < population.size(); i++)
+  {
+    for (int j = 0; j < CROMOSSOMO_SIZE; j++)
+    {
+      cout << population[i][j] << ' ';
+    }
+    cout << endl;
+  }
+}
 
 vector<int> split(const string &str, char delim = ' ')
 {
@@ -94,15 +127,25 @@ vector<Node> import_data(string PATH)
   return node_set;
 }
 
-void print_node_set(vector<Node> node_set)
+vector<Cromossomo> generate_population(int population_size, int cromossomo_size)
 {
-  for (int i = 0; i < node_set.size(); i++)
+  random_device rd;
+  mt19937 gen(rd());
+  uniform_int_distribution<> distr(RANGE_RANDOM_NUMBER[0], RANGE_RANDOM_NUMBER[1]);
+
+  vector<Cromossomo> population;
+
+  for (int i = 0; i < population_size; i++)
   {
-    cout << "v: " << node_set[i].getV() << " ";
-    cout << "x: " << node_set[i].getX() << " ";
-    cout << "y: " << node_set[i].getY() << " ";
-    cout << endl;
+    Cromossomo cromossomo;
+    for (int i = 0; i < cromossomo_size; i++)
+    {
+      cromossomo.push_back(distr(gen));
+    }
+    population.push_back(cromossomo);
   }
+
+  return population;
 }
 
 int main(int argc, char *argv[])
@@ -115,9 +158,16 @@ int main(int argc, char *argv[])
   }
 
   string PATH = argv[1];
-  vector<Node> node_set = import_data(PATH);
+  vector<Node> node_set;
+  vector<Cromossomo> population;
 
-  print_node_set(node_set);
+  // Importação dos dados;
+  node_set = import_data(PATH);
+
+  // Gera a população inicial
+  population = generate_population(INITIAL_POPULATION_SIZE, CROMOSSOMO_SIZE);
+
+  print_population(population);
 
   return 0;
 }
