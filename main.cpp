@@ -412,27 +412,27 @@ int main(int argc, char *argv[])
   node_set = import_data(PATH);
   population = create_initial_population(node_set);
 
-  //while(population.size() < MAX_GENERATION) {
-  // Seleção por classificação
-  sort(population.begin(), population.end(), orderByDistance);
-
-  // Crossover
-  children = crossover(population[0], population[1]);
-
-  cout << "BEFORE" << endl;
-  for (int i = 0; i < population.size(); i++)
+  while (population.size() < MAX_GENERATION)
   {
-    print_solution(population[i]);
+    // Seleção por classificação
+    sort(population.begin(), population.end(), orderByDistance);
+
+    // Crossover
+    children = crossover(population[0], population[1]);
+
+    cout << "BEFORE" << endl;
+    for (int i = 0; i < population.size(); i++)
+    {
+      print_solution(population[i]);
+    }
+
+    // Mutação
+    children = mutation(children, TX_MUTATION);
+
+    //Atualização da População
+    population.push_back(children[0]);
+    population.push_back(children[1]);
   }
-
-  // Mutação
-  children = mutation(children, TX_MUTATION);
-
-  //Atualização da População
-  population.push_back(children[0]);
-  population.push_back(children[1]);
-
-  //}
 
   cout << "AFTER" << endl;
   for (int i = 0; i < population.size(); i++)
