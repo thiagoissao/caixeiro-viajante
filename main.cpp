@@ -9,7 +9,7 @@ std::stringstream ss;
 
 // Constantes utilizadas no algoritmo
 const vector<int> RANGE_RANDOM_NUMBER = {0, 9};
-const int MAX_GENERATION = 10;
+const int MAX_GENERATION = 1000;
 
 // Tipos e Classes utilizados
 class Node
@@ -190,6 +190,28 @@ int random_number(int from, int to)
   mt19937 gen(rd());
   uniform_int_distribution<> distr(from, to);
   return distr(gen);
+}
+
+vector<Solution> evaluate(vector<Solution> population)
+{
+  vector<Solution> new_population = population;
+  for (int i = 0; i < population.size(); i++)
+  {
+    Solution solution = population[i];
+    solution.setDistance(0);
+
+    for (int j = 1; j < solution.getPath().size(); j++)
+    {
+      Node a = solution.getPath()[j - 1];
+      Node b = solution.getPath()[j];
+      float distance = distanceXY(a, b);
+      solution.setDistance(solution.getDistance() + distance);
+    }
+
+    new_population[i] = solution;
+  }
+
+  return new_population;
 }
 
 vector<Solution> create_initial_population(vector<Node> set)
@@ -407,6 +429,9 @@ int main(int argc, char *argv[])
   vector<Node> node_set;
   vector<Solution> population;
   vector<Solution> children;
+  time_t start, end;
+
+  time(&start);
 
   // Importação dos dados;
   node_set = import_data(PATH);
@@ -414,17 +439,14 @@ int main(int argc, char *argv[])
 
   while (population.size() < MAX_GENERATION)
   {
+    //Avaliação da População
+    population = evaluate(population);
+
     // Seleção por classificação
     sort(population.begin(), population.end(), orderByDistance);
 
     // Crossover
     children = crossover(population[0], population[1]);
-
-    cout << "BEFORE" << endl;
-    for (int i = 0; i < population.size(); i++)
-    {
-      print_solution(population[i]);
-    }
 
     // Mutação
     children = mutation(children, TX_MUTATION);
@@ -434,11 +456,24 @@ int main(int argc, char *argv[])
     population.push_back(children[1]);
   }
 
-  cout << "AFTER" << endl;
-  for (int i = 0; i < population.size(); i++)
-  {
-    print_solution(population[i]);
-  }
+  //Avaliação da População
+  population = evaluate(population);
 
+  // Seleção por classificação
+  sort(population.begin(), population.end(), orderByDistance);
+
+  cout << "BEST SOLUTION" << endl;
+  print_solution(population[0]);
+
+  cout << "WORST SOLUTION" << endl;
+  print_solution(population[population.size() - 1]);
+
+  time(&end);
+
+  // Calculating total time taken by the program.
+  double time_taken = double(end - start);
+  cout << "Tempo de execução do programa : " << fixed
+       << time_taken << setprecision(5);
+  cout << " sec " << endl;
   return 0;
 }
