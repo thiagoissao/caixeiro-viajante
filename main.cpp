@@ -9,20 +9,25 @@ std::stringstream ss;
 
 // Constantes utilizadas no algoritmo
 const vector<int> RANGE_RANDOM_NUMBER = {0, 9};
-const int CROMOSSOMO_SIZE = 9;
-const int INITIAL_POPULATION_SIZE = 20;
 
 // Tipos e Classes utilizados
-typedef vector<int> Cromossomo;
-
 class Node
 {
 private:
   int v;
   int x;
   int y;
+  bool visited;
 
 public:
+  Node(int v, int x, int y, bool visited)
+  {
+    this->setV(v);
+    this->setX(x);
+    this->setY(y);
+    this->setVisited(visited);
+  }
+
   void setV(int v)
   {
     this->v = v;
@@ -36,6 +41,11 @@ public:
   void setY(int y)
   {
     this->y = y;
+  }
+
+  void setVisited(bool visited)
+  {
+    this->visited = visited;
   }
 
   int getV()
@@ -52,6 +62,45 @@ public:
   {
     return this->y;
   }
+
+  bool getVisited()
+  {
+    return this->visited;
+  }
+};
+
+class Solution
+{
+private:
+  vector<Node> path;
+  float distance;
+
+public:
+  Solution()
+  {
+    this->path = {};
+    this->distance = 0;
+  }
+
+  void setPath(vector<Node> path)
+  {
+    this->path = path;
+  }
+
+  void setDistance(int d)
+  {
+    this->distance = d;
+  }
+
+  vector<Node> getPath()
+  {
+    return this->path;
+  }
+
+  float getDistance()
+  {
+    return this->distance;
+  }
 };
 
 // Todos os auxiliares para log
@@ -66,16 +115,16 @@ void print_node_set(vector<Node> node_set)
   }
 }
 
-void print_population(vector<Cromossomo> population)
+void print_solution(Solution solution)
 {
-  for (int i = 0; i < population.size(); i++)
+  cout << "Distancia: " << solution.getDistance() << endl;
+  cout << "Caminho: ";
+  for (int i = 0; i < solution.getPath().size(); i++)
   {
-    for (int j = 0; j < CROMOSSOMO_SIZE; j++)
-    {
-      cout << population[i][j] << ' ';
-    }
-    cout << endl;
+    cout << solution.getPath()[i].getV() << " ";
   }
+  cout << endl;
+  cout << endl;
 }
 
 vector<int> split(const string &str, char delim = ' ')
@@ -112,11 +161,11 @@ vector<Node> import_data(string PATH)
         return node_set;
       }
 
-      Node node;
-      node.setV(node_vec[0]);
-      node.setX(node_vec[1]);
-      node.setY(node_vec[2]);
-
+      Node node(
+          node_vec[0],
+          node_vec[1],
+          node_vec[2],
+          true);
       node_set.push_back(node);
     }
     file.close();
@@ -127,25 +176,84 @@ vector<Node> import_data(string PATH)
   return node_set;
 }
 
-vector<Cromossomo> generate_population(int population_size, int cromossomo_size)
+float distanceXY(Node a, Node b)
+{
+  float x = pow(b.getX() - a.getX(), 2);
+  float y = pow(b.getY() - a.getY(), 2);
+  return sqrt(x + y);
+}
+
+int random_number(int from, int to)
 {
   random_device rd;
   mt19937 gen(rd());
-  uniform_int_distribution<> distr(RANGE_RANDOM_NUMBER[0], RANGE_RANDOM_NUMBER[1]);
+  uniform_int_distribution<> distr(from, to);
+  return distr(gen);
+}
 
-  vector<Cromossomo> population;
-
-  for (int i = 0; i < population_size; i++)
+vector<Solution> create_initial_population(vector<Node> set)
+{
+  vector<Solution> solutions;
+  const int INITIAL_NODES_QUANTITY = 2;
+  for (int i = 0; i < INITIAL_NODES_QUANTITY; i++)
   {
-    Cromossomo cromossomo;
-    for (int i = 0; i < cromossomo_size; i++)
+
+    Solution solution;
+
+    int random_node_position = random_number(0, set.size() - 1);
+    Node initial_node(
+        set[random_node_position].getV(),
+        set[random_node_position].getX(),
+        set[random_node_position].getY(),
+        true);
+
+    vector<Node> newPath = solution.getPath();
+    newPath.push_back(initial_node);
+    solution.setPath(newPath);
+    while (solution.getPath().size() < set.size())
     {
-      cromossomo.push_back(distr(gen));
+      for (int j = 0; j < set.size(); j++)
+      {
+        Node node_set = set[j];
+        bool visited = false;
+        for (int k = 0; k < solution.getPath().size(); k++)
+        {
+          if (solution.getPath()[k].getV() == node_set.getV())
+          {
+            visited = true;
+          }
+        }
+        if (!visited)
+        {
+          // insere o vértice no conjunto de solução
+          newPath = solution.getPath();
+          newPath.push_back(node_set);
+
+          // calcula a distancia
+          Node b = node_set;
+          Node a = solution.getPath()[solution.getPath().size() - 1];
+          float distance = distanceXY(a, b);
+
+          solution.setPath(newPath);
+          solution.setDistance(solution.getDistance() + distance);
+
+          if (newPath.size() == set.size())
+          {
+            //Retornar a primeira posição
+            a = newPath[0];
+            newPath.push_back(a);
+            distance = distanceXY(a, b);
+
+            solution.setPath(newPath);
+            solution.setDistance(solution.getDistance() + distance);
+          }
+        }
+      }
     }
-    population.push_back(cromossomo);
+    solutions.push_back(solution);
   }
 
-  return population;
+  return solutions;
 }
 
 int main(int argc, char *argv[])
@@ -159,15 +267,16 @@ int main(int argc, char *argv[])
 
   string PATH = argv[1];
   vector<Node> node_set;
-  vector<Cromossomo> population;
+  vector<Solution> population;
 
   // Importação dos dados;
   node_set = import_data(PATH);
+  population = create_initial_population(node_set);
 
-  // Gera a população inicial
-  population = generate_population(INITIAL_POPULATION_SIZE, CROMOSSOMO_SIZE);
-
-  print_population(population);
+  for (int i = 0; i < population.size(); i++)
+  {
+    print_solution(population[i]);
+  }
 
   return 0;
 }
