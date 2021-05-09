@@ -16,8 +16,8 @@ class Node
 {
 private:
   int v;
-  int x;
-  int y;
+  float x;
+  float y;
   bool visited;
 
 public:
@@ -181,7 +181,7 @@ float distanceXY(Node a, Node b)
 {
   float x = pow(b.getX() - a.getX(), 2);
   float y = pow(b.getY() - a.getY(), 2);
-  return sqrt(x + y);
+  return abs(sqrt(x + y));
 }
 
 int random_number(int from, int to)
