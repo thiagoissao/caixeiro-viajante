@@ -9,7 +9,7 @@ std::stringstream ss;
 
 // Constantes utilizadas no algoritmo
 const vector<int> RANGE_RANDOM_NUMBER = {0, 9};
-const int MAX_GENERATION = 500;
+const int MAX_GENERATION = 1000;
 
 // Tipos e Classes utilizados
 class Node
@@ -21,7 +21,7 @@ private:
   bool visited;
 
 public:
-  Node(int v, int x, int y, bool visited)
+  Node(int v, float x, float y, bool visited)
   {
     this->setV(v);
     this->setX(x);
@@ -34,12 +34,12 @@ public:
     this->v = v;
   }
 
-  void setX(int x)
+  void setX(float x)
   {
     this->x = x;
   }
 
-  void setY(int y)
+  void setY(float y)
   {
     this->y = y;
   }
@@ -54,12 +54,12 @@ public:
     return this->v;
   }
 
-  int getX()
+  float getX()
   {
     return this->x;
   }
 
-  int getY()
+  float getY()
   {
     return this->y;
   }
@@ -88,7 +88,7 @@ public:
     this->path = path;
   }
 
-  void setDistance(int d)
+  void setDistance(float d)
   {
     this->distance = d;
   }
@@ -200,12 +200,13 @@ vector<Solution> evaluate(vector<Solution> population)
     Solution solution = population[i];
     solution.setDistance(0);
 
-    for (int j = 1; j < solution.getPath().size(); j++)
+    for (int j = 1; j <= solution.getPath().size(); j++)
     {
       Node a = solution.getPath()[j - 1];
       Node b = solution.getPath()[j];
       float distance = distanceXY(a, b);
-      solution.setDistance(solution.getDistance() + distance);
+      float newDistance = solution.getDistance() + distance;
+      solution.setDistance(newDistance);
     }
 
     new_population[i] = solution;
