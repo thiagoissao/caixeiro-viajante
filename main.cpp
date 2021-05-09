@@ -9,7 +9,7 @@ std::stringstream ss;
 
 // Constantes utilizadas no algoritmo
 const vector<int> RANGE_RANDOM_NUMBER = {0, 9};
-const int MAX_GENERATION = 1000;
+const int MAX_GENERATION = 500;
 
 // Tipos e Classes utilizados
 class Node
