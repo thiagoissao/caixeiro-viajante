@@ -9,7 +9,7 @@ std::stringstream ss;
 
 // Constantes utilizadas no algoritmo
 const vector<int> RANGE_RANDOM_NUMBER = {0, 9};
-const int MAX_GENERATION = 1000;
+const int MAX_GENERATION = 10000;
 
 // Tipos e Classes utilizados
 class Node
@@ -75,12 +75,14 @@ class Solution
 private:
   vector<Node> path;
   float distance;
+  bool isCalculated;
 
 public:
   Solution()
   {
     this->path = {};
     this->distance = 0;
+    this->isCalculated = 0;
   }
 
   void setPath(vector<Node> path)
@@ -93,6 +95,11 @@ public:
     this->distance = d;
   }
 
+  void setIsCalculated(bool isCalculated)
+  {
+    this->isCalculated = isCalculated;
+  }
+
   vector<Node> getPath()
   {
     return this->path;
@@ -101,6 +108,11 @@ public:
   float getDistance()
   {
     return this->distance;
+  }
+
+  bool getIsCalculated()
+  {
+    return this->isCalculated;
   }
 };
 
@@ -198,15 +210,18 @@ vector<Solution> evaluate(vector<Solution> population)
   for (int i = 0; i < population.size(); i++)
   {
     Solution solution = population[i];
-    solution.setDistance(0);
 
-    for (int j = 1; j <= solution.getPath().size(); j++)
+    if (!solution.getIsCalculated())
     {
-      Node a = solution.getPath()[j - 1];
-      Node b = solution.getPath()[j];
-      float distance = distanceXY(a, b);
-      float newDistance = solution.getDistance() + distance;
-      solution.setDistance(newDistance);
+      for (int j = 1; j <= solution.getPath().size(); j++)
+      {
+        Node a = solution.getPath()[j - 1];
+        Node b = solution.getPath()[j];
+        float distance = distanceXY(a, b);
+        float newDistance = solution.getDistance() + distance;
+        solution.setDistance(newDistance);
+        solution.setIsCalculated(true);
+      }
     }
 
     new_population[i] = solution;
@@ -238,6 +253,7 @@ vector<Solution> create_initial_population(vector<Node> set)
     {
       for (int j = 0; j < set.size(); j++)
       {
+        cout << set[j].getV() << endl;
         Node node_set = set[j];
         bool visited = false;
         for (int k = 0; k < solution.getPath().size(); k++)
@@ -260,6 +276,7 @@ vector<Solution> create_initial_population(vector<Node> set)
 
           solution.setPath(newPath);
           solution.setDistance(solution.getDistance() + distance);
+          solution.setIsCalculated(true);
 
           /*
           if (newPath.size() == set.size())
@@ -438,6 +455,8 @@ int main(int argc, char *argv[])
   node_set = import_data(PATH);
   population = create_initial_population(node_set);
 
+  print_solution(population[0]);
+
   while (population.size() < MAX_GENERATION)
   {
     //Avaliação da População
@@ -445,6 +464,9 @@ int main(int argc, char *argv[])
 
     // Seleção por classificação
     sort(population.begin(), population.end(), orderByDistance);
+
+    print_solution(population[0]);
+    cout << "SIZE: " << population.size() << endl;
 
     // Crossover
     children = crossover(population[0], population[1]);
