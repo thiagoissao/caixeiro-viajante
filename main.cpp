@@ -140,15 +140,15 @@ void print_solution(Solution solution)
   cout << endl;
 }
 
-vector<int> split(const string &str, char delim = ' ')
+vector<float> split(const string &str, char delim = ' ')
 {
   stringstream ss(str);
   string tok;
-  vector<int> vec;
+  vector<float> vec;
   while (getline(ss, tok, delim))
   {
     if (!tok.empty())
-      vec.push_back(stoi(tok));
+      vec.push_back(stof(tok));
   }
   return vec;
 }
@@ -166,7 +166,7 @@ vector<Node> import_data(string PATH)
     while (!file.eof())
     {
       getline(file, line);
-      vector<int> node_vec = split(line);
+      vector<float> node_vec = split(line);
 
       if (node_vec.size() != 3)
       {
@@ -465,7 +465,7 @@ int main(int argc, char *argv[])
     // Seleção por classificação
     sort(population.begin(), population.end(), orderByDistance);
 
-    print_solution(population[0]);
+    //print_solution(population[0]);
     cout << "SIZE: " << population.size() << endl;
 
     // Crossover
