@@ -9,7 +9,6 @@ std::stringstream ss;
 
 // Constantes utilizadas no algoritmo
 const vector<int> RANGE_RANDOM_NUMBER = {0, 9};
-const int MAX_GENERATION = 10000;
 
 // Tipos e Classes utilizados
 class Node
@@ -436,12 +435,13 @@ vector<Solution> mutation(vector<Solution> population, int tx_mutation)
 int main(int argc, char *argv[])
 {
 
-  if (argc < 3)
+  if (argc < 4)
   {
-    cout << "Necessário passar a rota do arquivo de entrada e a taxa de mutação (ex: data/a280.txt 100)" << endl;
+    cout << "Necessário passar a rota do arquivo de entrada, taxa de mutação e o tamanho máximo da população (ex: data/a280.txt 100 1000)" << endl;
     return 0;
   }
 
+  const int MAX_GENERATION = stoi(argv[3]);
   const int TX_MUTATION = stoi(argv[2]);
   string PATH = argv[1];
   vector<Node> node_set;
