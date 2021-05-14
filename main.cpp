@@ -192,7 +192,7 @@ float distanceXY(Node a, Node b)
 {
   float x = pow(b.getX() - a.getX(), 2);
   float y = pow(b.getY() - a.getY(), 2);
-  return abs(sqrt(x + y));
+  return sqrt(x + y);
 }
 
 int random_number(int from, int to)
@@ -252,7 +252,6 @@ vector<Solution> create_initial_population(vector<Node> set)
     {
       for (int j = 0; j < set.size(); j++)
       {
-        cout << set[j].getV() << endl;
         Node node_set = set[j];
         bool visited = false;
         for (int k = 0; k < solution.getPath().size(); k++)
@@ -432,6 +431,57 @@ vector<Solution> mutation(vector<Solution> population, int tx_mutation)
   return mutation_pop;
 }
 
+Solution localSearch(Solution solution)
+{
+
+  Solution new_solution = solution;
+
+  int size = solution.getPath().size() - 1;
+  int random_node_position = random_number(1, size);
+  Node x1 = solution.getPath()[random_node_position];
+  Node x2 = solution.getPath()[random_node_position - 1];
+  float x1_x2_distance = distanceXY(x1, x2);
+
+  for (int m = 0; m < size - 1; m++)
+  {
+    bool stop = false;
+    if (m != random_node_position && m != random_node_position - 1)
+    {
+      int n = m + 1;
+      Node i = solution.getPath()[m];
+      Node j = solution.getPath()[n];
+
+      float i_j_distance = distanceXY(i, j);
+      float x1_i_distance = distanceXY(x1, i);
+      float x2_j_distance = distanceXY(x2, j);
+
+      float current_distance = x1_x2_distance + i_j_distance;
+      float new_distance = x1_i_distance + x2_j_distance;
+
+      if (new_distance < current_distance)
+      {
+        vector<Node> new_nodes = solution.getPath();
+        cout << new_distance << endl;
+
+        Node aux = solution.getPath()[random_node_position];
+        new_nodes[random_node_position] = solution.getPath()[n];
+        new_nodes[n] = aux;
+
+        new_solution.setPath(new_nodes);
+        stop = true;
+        break;
+      }
+    }
+
+    if (stop)
+    {
+      break;
+    }
+  }
+
+  return new_solution;
+}
+
 int main(int argc, char *argv[])
 {
 
@@ -466,13 +516,17 @@ int main(int argc, char *argv[])
     sort(population.begin(), population.end(), orderByDistance);
 
     //print_solution(population[0]);
-    cout << "SIZE: " << population.size() << endl;
+    // cout << "SIZE: " << population.size() << endl;
 
     // Crossover
     children = crossover(population[0], population[1]);
 
     // Mutação
     children = mutation(children, TX_MUTATION);
+
+    //busca local
+    children[0] = localSearch(children[0]);
+    children[1] = localSearch(children[1]);
 
     //Atualização da População
     population.push_back(children[0]);
