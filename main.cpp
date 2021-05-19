@@ -118,7 +118,8 @@ public:
 // Todos os auxiliares para log
 void print_node_set(vector<Node> node_set)
 {
-  for (int i = 0; i < node_set.size(); i++)
+  unsigned int i;
+  for (i = 0; i < node_set.size(); i++)
   {
     cout << "v: " << node_set[i].getV() << " ";
     cout << "x: " << node_set[i].getX() << " ";
@@ -129,9 +130,10 @@ void print_node_set(vector<Node> node_set)
 
 void print_solution(Solution solution)
 {
+  unsigned int i;
   cout << "Distancia: " << solution.getDistance() << endl;
   cout << "Caminho: ";
-  for (int i = 0; i < solution.getPath().size(); i++)
+  for (i = 0; i < solution.getPath().size(); i++)
   {
     cout << solution.getPath()[i].getV() << " ";
   }
@@ -206,13 +208,14 @@ int random_number(int from, int to)
 vector<Solution> evaluate(vector<Solution> population)
 {
   vector<Solution> new_population = population;
-  for (int i = 0; i < population.size(); i++)
+  unsigned int i, j;
+  for (i = 0; i < population.size(); i++)
   {
     Solution solution = population[i];
 
     if (!solution.getIsCalculated())
     {
-      for (int j = 1; j <= solution.getPath().size(); j++)
+      for (j = 1; j <= solution.getPath().size(); j++)
       {
         Node a = solution.getPath()[j - 1];
         Node b = solution.getPath()[j];
@@ -233,9 +236,10 @@ vector<Solution> create_initial_population(vector<Node> set)
 {
   vector<Solution> solutions;
   const int INITIAL_NODES_QUANTITY = 2;
-  for (int i = 0; i < INITIAL_NODES_QUANTITY; i++)
+  unsigned int i;
+  for (i = 0; i < INITIAL_NODES_QUANTITY; i++)
   {
-
+    unsigned int k, j;
     Solution solution;
 
     int random_node_position = random_number(0, set.size() - 1);
@@ -250,11 +254,11 @@ vector<Solution> create_initial_population(vector<Node> set)
     solution.setPath(newPath);
     while (solution.getPath().size() < set.size())
     {
-      for (int j = 0; j < set.size(); j++)
+      for (j = 0; j < set.size(); j++)
       {
         Node node_set = set[j];
         bool visited = false;
-        for (int k = 0; k < solution.getPath().size(); k++)
+        for (k = 0; k < solution.getPath().size(); k++)
         {
           if (solution.getPath()[k].getV() == node_set.getV())
           {
@@ -305,7 +309,8 @@ bool orderByDistance(Solution a, Solution b)
 bool contains(Node node, vector<Node> nodes)
 {
   bool isContained = false;
-  for (int j = 0; j < nodes.size(); j++)
+  unsigned int j;
+  for (j = 0; j < nodes.size(); j++)
   {
     if (nodes[j].getV() == node.getV())
     {
@@ -326,8 +331,9 @@ vector<Solution> crossover(Solution father, Solution mother)
 
   const int half_size = father.getPath().size() / 2;
   const int size = father.getPath().size();
-
-  for (int i = 0; i < size; i++)
+  int i;
+  unsigned int j;
+  for (i = 0; i < size; i++)
   {
     Node init(-1, -1, -1, false);
     if (i >= half_size)
@@ -342,7 +348,7 @@ vector<Solution> crossover(Solution father, Solution mother)
     }
   }
 
-  for (int i = 0; i < size; i++)
+  for (i = 0; i < size; i++)
   {
     if (i >= half_size)
     {
@@ -355,7 +361,7 @@ vector<Solution> crossover(Solution father, Solution mother)
       }
       else
       {
-        for (int j = 0; j < father.getPath().size(); j++)
+        for (j = 0; j < father.getPath().size(); j++)
         {
           if (!contains(father.getPath()[j], first_path))
           {
@@ -379,7 +385,7 @@ vector<Solution> crossover(Solution father, Solution mother)
       }
       else
       {
-        for (int j = 0; j < mother.getPath().size(); j++)
+        for (j = 0; j < mother.getPath().size(); j++)
         {
           if (!contains(mother.getPath()[j], second_path))
           {
@@ -402,16 +408,17 @@ vector<Solution> crossover(Solution father, Solution mother)
   return solutions;
 }
 
-vector<Solution> mutation(vector<Solution> population, int tx_mutation)
+vector<Solution> mutation(vector<Solution> population, unsigned int tx_mutation)
 {
   vector<Solution> mutation_pop;
-  for (int i = 0; i < population.size(); i++)
+  unsigned int i, j;
+  for (i = 0; i < population.size(); i++)
   {
 
     int size = population[i].getPath().size() - 1;
     Solution solution = population[i];
 
-    for (int j = 0; j < tx_mutation; j++)
+    for (j = 0; j < tx_mutation; j++)
     {
       int random_number_v1 = random_number(0, size);
       int random_number_v2 = random_number(0, size);
@@ -441,7 +448,8 @@ Solution localSearch(Solution solution)
   Node x1 = solution.getPath()[random_node_position];
   Node x2 = solution.getPath()[random_node_position - 1];
   float x1_x2_distance = distanceXY(x1, x2);
-  for (int m = 0; m < size - 1; m++)
+  int m;
+  for (m = 0; m < size - 1; m++)
   {
     bool stop = false;
     if (m != random_node_position && m != random_node_position - 1)
@@ -477,20 +485,24 @@ Solution localSearch(Solution solution)
   return new_solution;
 }
 
-int main(int argc, char *argv[])
+int main()
 {
 
-  if (argc < 5)
+  /* if (argc < 5)
   {
     cout << "Necessário passar a rota do arquivo de entrada, taxa de mutação e o tamanho máximo da população (ex: data/a280.txt 100 1000 1)" << endl;
     cout << "Legenda: rota do arquivo TX_MUT TAM_POP LOCAL_SEARCH (1 para usar e 0 para não usar)" << endl;
     return 0;
-  }
+  } */
 
-  const int MAX_GENERATION = stoi(argv[3]);
-  const int TX_MUTATION = stoi(argv[2]);
-  const int WITH_LOCAL_SEARCH = stoi(argv[4]);
-  string PATH = argv[1];
+  //const unsigned int MAX_GENERATION = stoi(argv[3]);
+  const unsigned int MAX_GENERATION = 1000;
+  //const int TX_MUTATION = stoi(argv[2]);
+  const int TX_MUTATION = 2;
+  //const int WITH_LOCAL_SEARCH = stoi(argv[4]);
+  const int WITH_LOCAL_SEARCH = 1;
+  //string PATH = argv[1];
+  string PATH = "data/tsp225.txt";
   vector<Node> node_set;
   vector<Solution> population;
   vector<Solution> children;
